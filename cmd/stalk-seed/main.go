@@ -11,10 +11,13 @@ import (
 	_ "github.com/anacrolix/envpprof"
 	"github.com/anacrolix/tagflag"
 	"github.com/gosuri/uiprogress"
+	"golang.org/x/time/rate"
+
 	"github.com/anacrolix/torrent"
 	"github.com/anacrolix/torrent/metainfo"
-	"github.com/anacrolix/torrent/storage"
 	"time"
+
+	"torrent-object-storage/storage"
 )
 
 func addTorrents(client *torrent.Client) {
@@ -52,7 +55,6 @@ func addTorrents(client *torrent.Client) {
 					fmt.Fprintf(os.Stderr, "error loading torrent file %q: %s\n", arg, err)
 					os.Exit(1)
 				}
-				metaInfo.AnnounceList = nil
 				t, err := client.AddTorrent(metaInfo)
 				if err != nil {
 					log.Fatal(err)
@@ -71,33 +73,47 @@ func addTorrents(client *torrent.Client) {
 		}())
 		go func() {
 			<-t.GotInfo()
-			t.DownloadPieces(0, 1)
+			t.DownloadAll()
 
 			for {
-				client.WriteStatus(os.Stdout)
 				time.Sleep(500 * time.Millisecond)
+				client.WriteStatus(os.Stdout)
 			}
 		}()
 	}
 }
 
 var flags = struct {
-	Mmap         bool           `help:"memory-map torrent data"`
 	TestPeer     []*net.TCPAddr `help:"addresses of some starting peers"`
+	Seed         bool           `help:"seed after download is complete"`
 	Addr         *net.TCPAddr   `help:"network listen addr"`
+	UploadRate   tagflag.Bytes  `help:"max piece bytes to send per second"`
+	DownloadRate tagflag.Bytes  `help:"max bytes per second down from peers"`
 	tagflag.StartPos
-	Torrent []string `arity:"+" help:"torrent file path or magnet uri"`
-}{}
+	Torrent      []string `arity:"+" help:"torrent file path or magnet uri"`
+}{
+	UploadRate:   -1,
+	DownloadRate: -1,
+}
 
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	tagflag.Parse(&flags)
 	var clientConfig torrent.Config
-	if flags.Mmap {
-		clientConfig.DefaultStorage = storage.NewMMap("")
-	}
+
+	clientConfig.DefaultStorage = storage.NewNoOpStorage()
+
 	if flags.Addr != nil {
 		clientConfig.ListenAddr = flags.Addr.String()
+	}
+	if flags.Seed {
+		clientConfig.Seed = true
+	}
+	if flags.UploadRate != -1 {
+		clientConfig.UploadRateLimiter = rate.NewLimiter(rate.Limit(flags.UploadRate), 256<<10)
+	}
+	if flags.DownloadRate != -1 {
+		clientConfig.DownloadRateLimiter = rate.NewLimiter(rate.Limit(flags.DownloadRate), 1<<20)
 	}
 
 	client, err := torrent.NewClient(&clientConfig)
@@ -117,5 +133,8 @@ func main() {
 		log.Print("downloaded ALL the torrents")
 	} else {
 		log.Fatal("y u no complete torrents?!")
+	}
+	if flags.Seed {
+		select {}
 	}
 }
