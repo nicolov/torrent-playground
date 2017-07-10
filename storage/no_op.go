@@ -3,7 +3,6 @@ package storage
 import (
 	"github.com/anacrolix/torrent/storage"
 	"github.com/anacrolix/torrent/metainfo"
-	"fmt"
 )
 
 type noOpClient struct{}
@@ -49,9 +48,9 @@ func (self *noOpPiece) MarkNotComplete() error {
 }
 
 func (self *noOpPiece) ReadAt(b []byte, off int64) (n int, err error) {
-	return 0, nil
+	return len(b), nil
 }
 
 func (me *noOpPiece) WriteAt(b []byte, off int64) (n int, err error) {
-	return 0, nil
+	return len(b), nil
 }
