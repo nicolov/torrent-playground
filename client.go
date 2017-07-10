@@ -152,6 +152,27 @@ func (cl *Client) WriteStatus(_w io.Writer) {
 	}
 }
 
+func (cl *Client) WriteSwarmHealth(_w io.Writer) {
+	cl.mu.Lock()
+	defer cl.mu.Unlock()
+
+	w:= bufio.NewWriter(_w)
+	defer w.Flush()
+
+	for _, t := range slices.Sort(cl.torrentsAsSlice(), func(l, r *Torrent) bool {
+		return l.InfoHash().AsString() < r.InfoHash().AsString()
+	}).([]*Torrent) {
+		if t.name() == "" {
+			fmt.Fprint(w, "<unknown name>")
+		} else {
+			fmt.Fprint(w, t.name())
+		}
+		fmt.Fprint(w, "\n")
+		t.writeStatus(w)
+		fmt.Fprintln(w)
+	}
+}
+
 func listenUTP(networkSuffix, addr string) (utpSocket, error) {
 	return NewUtpSocket("udp"+networkSuffix, addr)
 }

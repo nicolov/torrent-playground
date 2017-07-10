@@ -6,14 +6,6 @@ import (
 	"expvar"
 )
 
-package torrent
-
-import (
-"crypto"
-"expvar"
-"time"
-)
-
 const (
 	pieceHash        = crypto.SHA1
 	maxRequests      = 250    // Maximum pending requests we allow peers to send us.
@@ -63,42 +55,42 @@ const (
 // I could move a lot of these counters to their own file, but I suspect they
 // may be attached to a Client someday.
 var (
-	unwantedChunksReceived   = expvar.NewInt("chunksReceivedUnwanted")
-	unexpectedChunksReceived = expvar.NewInt("chunksReceivedUnexpected")
-	chunksReceived           = expvar.NewInt("chunksReceived")
+	unwantedChunksReceived   = expvar.NewInt("chunksReceivedUnwanted_2")
+	unexpectedChunksReceived = expvar.NewInt("chunksReceivedUnexpected_2")
+	chunksReceived           = expvar.NewInt("chunksReceived_2")
 
-	peersAddedBySource = expvar.NewMap("peersAddedBySource")
+	peersAddedBySource = expvar.NewMap("peersAddedBySource_2")
 
-	uploadChunksPosted = expvar.NewInt("uploadChunksPosted")
-	unexpectedCancels  = expvar.NewInt("unexpectedCancels")
-	postedCancels      = expvar.NewInt("postedCancels")
+	uploadChunksPosted = expvar.NewInt("uploadChunksPosted_2")
+	unexpectedCancels  = expvar.NewInt("unexpectedCancels_2")
+	postedCancels      = expvar.NewInt("postedCancels_2")
 
-	pieceHashedCorrect    = expvar.NewInt("pieceHashedCorrect")
-	pieceHashedNotCorrect = expvar.NewInt("pieceHashedNotCorrect")
+	pieceHashedCorrect    = expvar.NewInt("pieceHashedCorrect_2")
+	pieceHashedNotCorrect = expvar.NewInt("pieceHashedNotCorrect_2")
 
-	unsuccessfulDials = expvar.NewInt("dialSuccessful")
-	successfulDials   = expvar.NewInt("dialUnsuccessful")
+	unsuccessfulDials = expvar.NewInt("dialSuccessful_2")
+	successfulDials   = expvar.NewInt("dialUnsuccessful_2")
 
-	acceptUTP    = expvar.NewInt("acceptUTP")
-	acceptTCP    = expvar.NewInt("acceptTCP")
-	acceptReject = expvar.NewInt("acceptReject")
+	acceptUTP    = expvar.NewInt("acceptUTP_2")
+	acceptTCP    = expvar.NewInt("acceptTCP_2")
+	acceptReject = expvar.NewInt("acceptReject_2")
 
-	peerExtensions                    = expvar.NewMap("peerExtensions")
-	completedHandshakeConnectionFlags = expvar.NewMap("completedHandshakeConnectionFlags")
+	peerExtensions                    = expvar.NewMap("peerExtensions_2")
+	completedHandshakeConnectionFlags = expvar.NewMap("completedHandshakeConnectionFlags_2")
 	// Count of connections to peer with same client ID.
-	connsToSelf = expvar.NewInt("connsToSelf")
+	connsToSelf = expvar.NewInt("connsToSelf_2")
 	// Number of completed connections to a client we're already connected with.
-	duplicateClientConns       = expvar.NewInt("duplicateClientConns")
-	receivedMessageTypes       = expvar.NewMap("receivedMessageTypes")
-	receivedKeepalives         = expvar.NewInt("receivedKeepalives")
-	supportedExtensionMessages = expvar.NewMap("supportedExtensionMessages")
-	postedMessageTypes         = expvar.NewMap("postedMessageTypes")
-	postedKeepalives           = expvar.NewInt("postedKeepalives")
+	duplicateClientConns       = expvar.NewInt("duplicateClientConns_2")
+	receivedMessageTypes       = expvar.NewMap("receivedMessageTypes_2")
+	receivedKeepalives         = expvar.NewInt("receivedKeepalives_2")
+	supportedExtensionMessages = expvar.NewMap("supportedExtensionMessages_2")
+	postedMessageTypes         = expvar.NewMap("postedMessageTypes_2")
+	postedKeepalives           = expvar.NewInt("postedKeepalives_2")
 	// Requests received for pieces we don't have.
-	requestsReceivedForMissingPieces = expvar.NewInt("requestsReceivedForMissingPieces")
+	requestsReceivedForMissingPieces = expvar.NewInt("requestsReceivedForMissingPieces_2")
 
 	// Track the effectiveness of Torrent.connPieceInclinationPool.
-	pieceInclinationsReused = expvar.NewInt("pieceInclinationsReused")
-	pieceInclinationsNew    = expvar.NewInt("pieceInclinationsNew")
-	pieceInclinationsPut    = expvar.NewInt("pieceInclinationsPut")
+	pieceInclinationsReused = expvar.NewInt("pieceInclinationsReused_2")
+	pieceInclinationsNew    = expvar.NewInt("pieceInclinationsNew_2")
+	pieceInclinationsPut    = expvar.NewInt("pieceInclinationsPut_2")
 )

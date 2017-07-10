@@ -1,4 +1,4 @@
-// +build !cgo
+// +xxbuild !cgo
 
 package torrent_nicolov
 

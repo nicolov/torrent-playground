@@ -25,7 +25,7 @@ import (
 	pp "github.com/anacrolix/torrent/peer_protocol"
 )
 
-var optimizedCancels = expvar.NewInt("optimizedCancels")
+var optimizedCancels = expvar.NewInt("optimizedCancels_2")
 
 type peerSource string
 
@@ -399,8 +399,8 @@ func (cn *connection) SetInterested(interested bool) {
 var (
 	// Track connection writer buffer writes and flushes, to determine its
 	// efficiency.
-	connectionWriterFlush = expvar.NewInt("connectionWriterFlush")
-	connectionWriterWrite = expvar.NewInt("connectionWriterWrite")
+	connectionWriterFlush = expvar.NewInt("connectionWriterFlush_2")
+	connectionWriterWrite = expvar.NewInt("connectionWriterWrite_2")
 )
 
 // Writes buffers to the socket from the write channel.

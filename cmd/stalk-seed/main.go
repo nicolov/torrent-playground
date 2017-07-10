@@ -13,16 +13,17 @@ import (
 	"github.com/gosuri/uiprogress"
 	"golang.org/x/time/rate"
 
-	"github.com/anacrolix/torrent"
 	"github.com/anacrolix/torrent/metainfo"
 	"time"
 
 	"torrent-object-storage/storage"
+	"torrent-object-storage"
+	"github.com/anacrolix/torrent"
 )
 
-func addTorrents(client *torrent.Client) {
+func addTorrents(client *torrent_nicolov.Client) {
 	for _, arg := range flags.Torrent {
-		t := func() *torrent.Torrent {
+		t := func() *torrent_nicolov.Torrent {
 			if strings.HasPrefix(arg, "magnet:") {
 				t, err := client.AddMagnet(arg)
 				if err != nil {
@@ -62,9 +63,9 @@ func addTorrents(client *torrent.Client) {
 				return t
 			}
 		}()
-		t.AddPeers(func() (ret []torrent.Peer) {
+		t.AddPeers(func() (ret []torrent_nicolov.Peer) {
 			for _, ta := range flags.TestPeer {
-				ret = append(ret, torrent.Peer{
+				ret = append(ret, torrent_nicolov.Peer{
 					IP:   ta.IP,
 					Port: ta.Port,
 				})
@@ -77,7 +78,7 @@ func addTorrents(client *torrent.Client) {
 
 			for {
 				time.Sleep(500 * time.Millisecond)
-				client.WriteStatus(os.Stdout)
+				client.WriteSwarmHealth(os.Stdout)
 			}
 		}()
 	}
@@ -116,7 +117,7 @@ func main() {
 		clientConfig.DownloadRateLimiter = rate.NewLimiter(rate.Limit(flags.DownloadRate), 1<<20)
 	}
 
-	client, err := torrent.NewClient(&clientConfig)
+	client, err := torrent_nicolov.NewClient(&clientConfig)
 	if err != nil {
 		log.Fatalf("error creating client: %s", err)
 	}
