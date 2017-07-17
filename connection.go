@@ -132,6 +132,12 @@ func (cn *connection) completedString() string {
 	return fmt.Sprintf("%d/%d", cn.peerPieces.Len(), cn.bestPeerNumPieces())
 }
 
+func (cn *connection) PeerHealth() (string, float32) {
+	// Return connection info & pct done from a peer
+	return cn.conn.RemoteAddr().String(),
+		100 * float32(cn.peerPieces.Len()) / float32(cn.bestPeerNumPieces())
+}
+
 // Correct the PeerPieces slice length. Return false if the existing slice is
 // invalid, such as by receiving badly sized BITFIELD, or invalid HAVE
 // messages.

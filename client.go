@@ -152,25 +152,27 @@ func (cl *Client) WriteStatus(_w io.Writer) {
 	}
 }
 
-func (cl *Client) WriteSwarmHealth(_w io.Writer) {
+func (cl *Client) SwarmHealth() (map[string]map[string]float32) {
+	// Return swarm health stats for all torrents in the client
 	cl.mu.Lock()
 	defer cl.mu.Unlock()
 
-	w:= bufio.NewWriter(_w)
-	defer w.Flush()
+	allTorrentsStats := make(map[string]map[string]float32)
 
 	for _, t := range slices.Sort(cl.torrentsAsSlice(), func(l, r *Torrent) bool {
 		return l.InfoHash().AsString() < r.InfoHash().AsString()
 	}).([]*Torrent) {
+		var name string
 		if t.name() == "" {
-			fmt.Fprint(w, "<unknown name>")
+			name = "<unknown>"
 		} else {
-			fmt.Fprint(w, t.name())
+			name = t.name()
 		}
-		fmt.Fprint(w, "\n")
-		t.writeStatus(w)
-		fmt.Fprintln(w)
+
+		allTorrentsStats[name] = t.SwarmHealth()
 	}
+
+	return allTorrentsStats
 }
 
 func listenUTP(networkSuffix, addr string) (utpSocket, error) {
@@ -717,7 +719,7 @@ func handshakeWriter(w io.Writer, bb <-chan []byte, done chan<- error) {
 
 type (
 	peerExtensionBytes [8]byte
-	peerID             [20]byte
+	peerID [20]byte
 )
 
 func (pex *peerExtensionBytes) SupportsExtended() bool {

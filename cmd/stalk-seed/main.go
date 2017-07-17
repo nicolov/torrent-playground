@@ -11,14 +11,14 @@ import (
 	_ "github.com/anacrolix/envpprof"
 	"github.com/anacrolix/tagflag"
 	"github.com/gosuri/uiprogress"
-	"golang.org/x/time/rate"
-
 	"github.com/anacrolix/torrent/metainfo"
 	"time"
 
 	"torrent-object-storage/storage"
 	"torrent-object-storage"
 	"github.com/anacrolix/torrent"
+	"encoding/json"
+	"io/ioutil"
 )
 
 func addTorrents(client *torrent_nicolov.Client) {
@@ -73,29 +73,39 @@ func addTorrents(client *torrent_nicolov.Client) {
 			return
 		}())
 		go func() {
+			// Wait for torrent info
 			<-t.GotInfo()
+			// Start downloading
+			//t.DownloadPieces(0, 1)
 			t.DownloadAll()
-
-			for {
-				time.Sleep(500 * time.Millisecond)
-				client.WriteSwarmHealth(os.Stdout)
-			}
 		}()
 	}
+
+	go func() {
+		// Wait and print/save swarm stats
+		waitTimeSec := 10
+		log.Printf("Waiting %d seconds before saving stats", waitTimeSec)
+		time.Sleep(time.Duration(waitTimeSec) * time.Second)
+		swarmHealth := client.SwarmHealth()
+
+		jsonDump, err := json.MarshalIndent(swarmHealth, "", "  ")
+
+		if err != nil {
+			panic(err)
+		}
+
+		fmt.Printf("%s\n", jsonDump)
+
+		err = ioutil.WriteFile("swarm_health.json", jsonDump, 0644)
+	}()
 }
 
 var flags = struct {
-	TestPeer     []*net.TCPAddr `help:"addresses of some starting peers"`
-	Seed         bool           `help:"seed after download is complete"`
-	Addr         *net.TCPAddr   `help:"network listen addr"`
-	UploadRate   tagflag.Bytes  `help:"max piece bytes to send per second"`
-	DownloadRate tagflag.Bytes  `help:"max bytes per second down from peers"`
+	TestPeer []*net.TCPAddr `help:"addresses of some starting peers"`
+	Addr     *net.TCPAddr   `help:"network listen addr"`
 	tagflag.StartPos
-	Torrent      []string `arity:"+" help:"torrent file path or magnet uri"`
-}{
-	UploadRate:   -1,
-	DownloadRate: -1,
-}
+	Torrent  []string `arity:"+" help:"torrent file path or magnet uri"`
+}{}
 
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
@@ -106,15 +116,6 @@ func main() {
 
 	if flags.Addr != nil {
 		clientConfig.ListenAddr = flags.Addr.String()
-	}
-	if flags.Seed {
-		clientConfig.Seed = true
-	}
-	if flags.UploadRate != -1 {
-		clientConfig.UploadRateLimiter = rate.NewLimiter(rate.Limit(flags.UploadRate), 256<<10)
-	}
-	if flags.DownloadRate != -1 {
-		clientConfig.DownloadRateLimiter = rate.NewLimiter(rate.Limit(flags.DownloadRate), 1<<20)
 	}
 
 	client, err := torrent_nicolov.NewClient(&clientConfig)
@@ -134,8 +135,5 @@ func main() {
 		log.Print("downloaded ALL the torrents")
 	} else {
 		log.Fatal("y u no complete torrents?!")
-	}
-	if flags.Seed {
-		select {}
 	}
 }

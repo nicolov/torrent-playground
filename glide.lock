@@ -1,6 +1,11 @@
 hash: 35e6045b53fdc416e54f485cb0f72abe1309fb876b97d9dc6bc16a86fdcd4b14
-updated: 2017-07-08T17:48:00.204575442-07:00
+updated: 2017-07-16T17:30:50.703469442-07:00
 imports:
+- name: bazil.org/fuse
+  version: 371fbbdaa8987b715bdd21d6adc4c9b20155f748
+  subpackages:
+  - fs
+  - fuseutil
 - name: github.com/anacrolix/dht
   version: 1e2e5640868545ee3b83e34c6dda1bb2c649bb50
   subpackages:
@@ -32,6 +37,7 @@ imports:
   version: cd20c2df360fb0468e3a90f03e4091cd02c3d764
   subpackages:
   - bencode
+  - fs
   - iplist
   - logonce
   - metainfo
@@ -41,6 +47,7 @@ imports:
   - storage
   - tracker
   - util
+  - util/dirwatch
 - name: github.com/anacrolix/utp
   version: adfb02f3172f79816912bcf58f2b58531624ae68
 - name: github.com/boltdb/bolt
@@ -53,6 +60,8 @@ imports:
   version: 0bce6a6887123b67a60366d2c9fe2dfb74289d2e
 - name: github.com/glycerine/go-unsnap-stream
   version: 87275cecd8e984c5875577d22da7ce8945df780e
+- name: github.com/go-fsnotify/fsnotify
+  version: 4da3e2cfbabc9f751898f250b49f2439785783a1
 - name: github.com/golang/snappy
   version: 553a641470496b2327abcac10b36396bd98e45c9
 - name: github.com/google/btree

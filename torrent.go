@@ -481,6 +481,18 @@ func (t *Torrent) writeStatus(w io.Writer) {
 	}
 }
 
+func (t *Torrent) SwarmHealth() (stats map[string]float32) {
+	conns := t.connsAsSlice()
+	stats = make(map[string]float32)
+
+	for _, c := range conns {
+		addr, pctDone := c.PeerHealth()
+		stats[addr] = pctDone
+	}
+
+	return stats
+}
+
 func (t *Torrent) haveInfo() bool {
 	return t.info != nil
 }
@@ -1393,7 +1405,7 @@ func (t *Torrent) pieceHashed(piece int, correct bool) {
 		if correct {
 			pieceHashedCorrect.Add(1)
 		} else {
-			log.Printf("%s: piece %d (%s) failed hash: %d connections contributed", t, piece, p.Hash, len(touchers))
+			//log.Printf("%s: piece %d (%s) failed hash: %d connections contributed", t, piece, p.Hash, len(touchers))
 			pieceHashedNotCorrect.Add(1)
 		}
 	}
